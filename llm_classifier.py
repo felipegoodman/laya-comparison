@@ -235,32 +235,40 @@ def canonical_area(value: str) -> str:
     return MANUAL
 
 
-def print_result(case: EmailCase, data: dict) -> bool | None:
-    print(f"== {case.name} ==")
-    print(json.dumps(data, ensure_ascii=False, indent=2))
+def evaluate(case: EmailCase, data: dict) -> dict:
     raw_area = str(data["area_destinataria"])
     area = canonical_area(raw_area)
-    if area == MANUAL and _fold(raw_area) != _fold(MANUAL):
-        print(f"aviso: área fuera del catálogo, se toma como {MANUAL}: {raw_area}")
-
-    checks: list[tuple[str, bool]] = []
-    if case.expected_area is not None:
-        checks.append((f"area: {case.expected_area}", area == case.expected_area))
+    area_ok = None if case.expected_area is None else area == case.expected_area
+    revision_ok = None
     if case.expected_revision is not None:
-        checks.append(
-            (
-                f"requiere_revision: {str(case.expected_revision).lower()}",
-                data["requiere_revision"] is case.expected_revision,
-            )
-        )
-    if not checks:
+        revision_ok = data.get("requiere_revision") is case.expected_revision
+    flags = [flag for flag in (area_ok, revision_ok) if flag is not None]
+    return {
+        "area": area,
+        "fuera_de_catalogo": area == MANUAL and _fold(raw_area) != _fold(MANUAL),
+        "area_ok": area_ok,
+        "revision_ok": revision_ok,
+        "ok": all(flags) if flags else None,
+    }
+
+
+def print_result(case: EmailCase, data: dict) -> bool | None:
+    scored = evaluate(case, data)
+    print(f"== {case.name} ==")
+    print(json.dumps(data, ensure_ascii=False, indent=2))
+    if scored["fuera_de_catalogo"]:
+        print(f"aviso: área fuera del catálogo, se toma como {MANUAL}: {data['area_destinataria']}")
+    if scored["ok"] is None:
         print()
         return None
-    for label, flag in checks:
-        mark = "ok" if flag else "fallo"
-        print(f"esperado {label} -> {mark}")
+    if case.expected_area is not None:
+        mark = "ok" if scored["area_ok"] else "fallo"
+        print(f"esperado area: {case.expected_area} -> {mark}")
+    if case.expected_revision is not None:
+        mark = "ok" if scored["revision_ok"] else "fallo"
+        print(f"esperado requiere_revision: {str(case.expected_revision).lower()} -> {mark}")
     print()
-    return all(flag for _, flag in checks)
+    return scored["ok"]
 
 
 def main() -> None:
