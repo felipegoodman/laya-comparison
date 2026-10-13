@@ -1,0 +1,13 @@
+ASUNTO: Consulta sobre factura pendiente
+REMITENTE: proveedor01@empresa.test
+ESPERADO: Finanzas
+ESPERADO_REVISION: false
+
+CUERPO:
+Buen día,
+
+La factura F-2026-104 todavía aparece como pendiente de pago.
+Agradecemos confirmar su estado y, si es posible, indicarnos
+la fecha estimada de pago.
+
+Quedamos atentos.

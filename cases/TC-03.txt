@@ -1,0 +1,15 @@
+ASUNTO: Solicitud de vacaciones
+REMITENTE: empleado01@empresa.test
+ESPERADO: Recursos Humanos
+ESPERADO_REVISION: false
+
+CUERPO:
+Hola,
+
+Quisiera solicitar cinco días de vacaciones a partir del
+16 de noviembre de 2026.
+
+Agradezco indicarme si las fechas están disponibles y cuál
+es el procedimiento para formalizar la solicitud.
+
+Saludos.

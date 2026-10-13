@@ -1,0 +1,15 @@
+ASUNTO: Problemas para acceder al sistema
+REMITENTE: usuario01@empresa.test
+ESPERADO: TI
+ESPERADO_REVISION: false
+
+CUERPO:
+Buenos días,
+
+Desde esta mañana no puedo ingresar al sistema corporativo.
+Al introducir mis credenciales, aparece un mensaje indicando
+que el acceso ha sido rechazado.
+
+¿Podrían ayudarme a solucionar el problema?
+
+Gracias.

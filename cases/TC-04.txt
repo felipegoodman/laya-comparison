@@ -1,0 +1,14 @@
+ASUNTO: Ayuda urgente
+REMITENTE: usuario02@empresa.test
+ESPERADO: Revisión manual
+ESPERADO_REVISION: true
+
+CUERPO:
+Buenos días,
+
+Tenemos un inconveniente urgente que necesitamos resolver
+lo antes posible.
+
+Por favor, indíquennos cómo proceder.
+
+Gracias.
