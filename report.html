@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Precisión y tiempo</title>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <style>
+    :root { color-scheme: dark; }
+    body { margin: 0; font-family: "Segoe UI", sans-serif; background: #12161c; color: #e8eef6; }
+    main { max-width: 1100px; margin: 0 auto; padding: 28px 20px 48px; }
+    h1 { font-size: 1.4rem; font-weight: 650; margin: 0 0 6px; }
+    p.note { margin: 0 0 20px; color: #9aabbd; font-size: 0.92rem; }
+    .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .card, .panel { background: #1c2430; border-radius: 12px; padding: 16px 18px; }
+    .card h2 { margin: 0; font-size: 1rem; }
+    .card .num { font-size: 1.8rem; margin: 8px 0 0; }
+    .card .sub { color: #9aabbd; font-size: 0.85rem; }
+    .panel { margin-top: 12px; }
+    .panel h2 { margin: 0 0 8px; font-size: 1rem; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #2c3848; }
+    th { color: #9aabbd; font-weight: 600; }
+    .ok { color: #3ddc97; }
+    .bad { color: #f07178; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Precisión y tiempo</h1>
+  <p class="note">Precisión de un caso: área y revisión correctas. Precisión general: aciertos / casos. Precisión por área: aciertos de esa área / veces que el modelo la eligió. Tiempo de caso: solo la clasificación. Tiempo general: carga más casos.</p>
+  <div class="cards" id="cards"></div>
+  <section class="panel"><h2>Tiempo por caso</h2><div id="tiempo"></div></section>
+  <section class="panel"><h2>Precisión por caso</h2><div id="precision"></div></section>
+  <section class="panel"><h2>Precisión y tiempo por caso</h2><div id="ambos-caso"></div></section>
+  <section class="panel"><h2>Precisión y tiempo general</h2><div id="ambos"></div></section>
+  <section class="panel"><h2>Precisión por área</h2><div id="areas"></div></section>
+  <section class="panel"><h2>Detalle</h2><div id="tabla"></div></section>
+</main>
+<script>
+const report = {"modelos": [{"nombre": "Falcon3", "casos": [{"caso": "TC-01", "esperado": "TI", "area": "TI", "area_ok": true, "revision_ok": true, "ok": true, "precision": 100.0, "segundos": 12.99, "error": null}, {"caso": "TC-02", "esperado": "Finanzas", "area": "Finanzas", "area_ok": true, "revision_ok": true, "ok": true, "precision": 100.0, "segundos": 22.13, "error": null}, {"caso": "TC-03", "esperado": "Recursos Humanos", "area": "Recursos Humanos", "area_ok": true, "revision_ok": true, "ok": true, "precision": 100.0, "segundos": 19.02, "error": null}, {"caso": "TC-04", "esperado": "Revisión manual", "area": "TI", "area_ok": false, "revision_ok": false, "ok": false, "precision": 0.0, "segundos": 16.28, "error": null}, {"caso": "TC-05", "esperado": "TI", "area": "TI", "area_ok": true, "revision_ok": true, "ok": true, "precision": 100.0, "segundos": 19.34, "error": null}], "aciertos": 4, "total": 5, "precision": 80.0, "inferencia_s": 89.76, "carga_s": 0.14, "general_s": 89.9, "por_area": [{"area": "TI", "precision": 66.7, "elegida": 3, "aciertos": 2}, {"area": "Finanzas", "precision": 100.0, "elegida": 1, "aciertos": 1}, {"area": "Recursos Humanos", "precision": 100.0, "elegida": 1, "aciertos": 1}, {"area": "Compras", "precision": null, "elegida": 0, "aciertos": 0}, {"area": "Seguridad", "precision": null, "elegida": 0, "aciertos": 0}, {"area": "Revisión manual", "precision": null, "elegida": 0, "aciertos": 0}]}, {"nombre": "Laya", "casos": [{"caso": "TC-01", "esperado": "TI", "area": "TI", "area_ok": true, "revision_ok": true, "ok": true, "precision": 100.0, "segundos": 0.92, "error": null}, {"caso": "TC-02", "esperado": "Finanzas", "area": "Finanzas", "area_ok": true, "revision_ok": true, "ok": true, "precision": 100.0, "segundos": 0.88, "error": null}, {"caso": "TC-03", "esperado": "Recursos Humanos", "area": "Recursos Humanos", "area_ok": true, "revision_ok": true, "ok": true, "precision": 100.0, "segundos": 0.77, "error": null}, {"caso": "TC-04", "esperado": "Revisión manual", "area": "TI", "area_ok": false, "revision_ok": false, "ok": false, "precision": 0.0, "segundos": 0.79, "error": null}, {"caso": "TC-05", "esperado": "TI", "area": "TI", "area_ok": true, "revision_ok": true, "ok": true, "precision": 100.0, "segundos": 0.86, "error": null}], "aciertos": 4, "total": 5, "precision": 80.0, "inferencia_s": 4.22, "carga_s": 14.07, "general_s": 18.29, "por_area": [{"area": "TI", "precision": 66.7, "elegida": 3, "aciertos": 2}, {"area": "Finanzas", "precision": 100.0, "elegida": 1, "aciertos": 1}, {"area": "Recursos Humanos", "precision": 100.0, "elegida": 1, "aciertos": 1}, {"area": "Compras", "precision": null, "elegida": 0, "aciertos": 0}, {"area": "Seguridad", "precision": null, "elegida": 0, "aciertos": 0}, {"area": "Revisión manual", "precision": null, "elegida": 0, "aciertos": 0}]}], "areas": ["TI", "Finanzas", "Recursos Humanos", "Compras", "Seguridad", "Revisión manual"], "manual": "Revisión manual"};
+const models = report.modelos;
+const names = models.map((m) => m.nombre);
+const cases = models[0].casos.map((row) => row.caso);
+const colors = ["#5B8DEF", "#3DDC97"];
+const base = {
+  chart: { background: "transparent", foreColor: "#e8eef6", toolbar: { show: true }, fontFamily: "Segoe UI, sans-serif" },
+  theme: { mode: "dark" },
+  colors,
+  grid: { borderColor: "#2c3848" },
+  legend: { position: "top" },
+  dataLabels: { enabled: true },
+};
+
+function chart(el, options) {
+  new ApexCharts(document.querySelector(el), options).render();
+}
+
+document.getElementById("cards").innerHTML = models.map((model) => `
+  <article class="card">
+    <h2>${model.nombre}</h2>
+    <p class="num">${model.precision}% · ${model.general_s}s</p>
+    <p class="sub">${model.aciertos}/${model.total} casos · carga ${model.carga_s}s · inferencia ${model.inferencia_s}s</p>
+  </article>
+`).join("");
+
+chart("#tiempo", {
+  ...base,
+  series: models.map((model) => ({ name: model.nombre, data: model.casos.map((row) => row.segundos) })),
+  chart: { ...base.chart, type: "bar", height: 360 },
+  plotOptions: { bar: { borderRadius: 4, columnWidth: "55%" } },
+  xaxis: { categories: cases },
+  yaxis: { title: { text: "Segundos" }, decimalsInFloat: 1 },
+  tooltip: { y: { formatter: (value) => value.toFixed(2) + " s" } },
+});
+
+chart("#precision", {
+  ...base,
+  series: models.map((model) => ({ name: model.nombre, data: model.casos.map((row) => row.precision) })),
+  chart: { ...base.chart, type: "bar", height: 360 },
+  plotOptions: { bar: { borderRadius: 4, columnWidth: "55%" } },
+  xaxis: { categories: cases },
+  yaxis: { min: 0, max: 100, title: { text: "Precisión %" } },
+  tooltip: { y: { formatter: (value) => value + "%" } },
+});
+
+chart("#ambos-caso", {
+  ...base,
+  series: [
+    ...models.map((model) => ({ name: model.nombre + " tiempo (s)", type: "column", data: model.casos.map((row) => row.segundos) })),
+    ...models.map((model) => ({ name: model.nombre + " precisión (%)", type: "line", data: model.casos.map((row) => row.precision) })),
+  ],
+  chart: { ...base.chart, type: "line", height: 400 },
+  stroke: { width: [0, 0, 3, 3], curve: "smooth" },
+  markers: { size: [0, 0, 5, 5] },
+  plotOptions: { bar: { borderRadius: 4, columnWidth: "55%" } },
+  colors: ["#5B8DEF", "#3DDC97", "#8FB4F5", "#F0C14D"],
+  xaxis: { categories: cases },
+  yaxis: [
+    { seriesName: models[0].nombre + " tiempo (s)", title: { text: "Segundos" }, decimalsInFloat: 1 },
+    { seriesName: models[0].nombre + " tiempo (s)", show: false, decimalsInFloat: 1 },
+    { seriesName: models[0].nombre + " precisión (%)", opposite: true, min: 0, max: 100, title: { text: "Precisión %" } },
+    { seriesName: models[0].nombre + " precisión (%)", opposite: true, show: false, min: 0, max: 100 },
+  ],
+  tooltip: { shared: true, intersect: false },
+});
+
+chart("#ambos", {
+  ...base,
+  series: [
+    { name: "Tiempo general (s)", type: "column", data: models.map((model) => model.general_s) },
+    { name: "Precisión (%)", type: "line", data: models.map((model) => model.precision) },
+  ],
+  chart: { ...base.chart, type: "line", height: 380 },
+  stroke: { width: [0, 3], curve: "smooth" },
+  markers: { size: [0, 6] },
+  plotOptions: { bar: { borderRadius: 6, columnWidth: "40%" } },
+  colors: ["#5B8DEF", "#F0C14D"],
+  xaxis: { categories: names },
+  yaxis: [
+    { title: { text: "Segundos" }, decimalsInFloat: 1 },
+    { opposite: true, min: 0, max: 100, title: { text: "Precisión %" } },
+  ],
+  dataLabels: {
+    enabled: true,
+    enabledOnSeries: [0, 1],
+    formatter: (value, opts) => opts.seriesIndex === 1 ? value + "%" : value + "s",
+  },
+});
+
+const areaNames = report.areas;
+chart("#areas", {
+  ...base,
+  series: models.map((model) => ({
+    name: model.nombre,
+    data: areaNames.map((area) => {
+      const found = model.por_area.find((item) => item.area === area);
+      return found && found.precision !== null ? found.precision : null;
+    }),
+  })),
+  chart: { ...base.chart, type: "bar", height: 380 },
+  plotOptions: { bar: { borderRadius: 4, columnWidth: "55%" } },
+  xaxis: { categories: areaNames, labels: { rotate: -25, hideOverlappingLabels: false } },
+  yaxis: { min: 0, max: 100, title: { text: "Precisión %" } },
+  tooltip: { y: { formatter: (value) => value === null || value === undefined ? "sin predicciones" : value + "%" } },
+});
+
+const header = `<tr><th>Caso</th><th>Modelo</th><th>Esperado</th><th>Área</th><th>Precisión</th><th>Tiempo</th></tr>`;
+const body = models.flatMap((model) => model.casos.map((row) => {
+  const mark = row.ok ? "ok" : "bad";
+  const label = row.error ? "error" : (row.ok ? "100%" : "0%");
+  return `<tr><td>${row.caso}</td><td>${model.nombre}</td><td>${row.esperado || ""}</td><td>${row.area || ""}</td><td class="${mark}">${label}</td><td>${row.segundos.toFixed(2)} s</td></tr>`;
+})).join("");
+document.getElementById("tabla").innerHTML = `<table><thead>${header}</thead><tbody>${body}</tbody></table>`;
+</script>
+</body>
+</html>
