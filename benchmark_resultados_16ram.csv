@@ -1,0 +1,11 @@
+caso,modelo,area_esperada,categoria_obtenida,area_destinataria,acierto_area,revision_esperada,revision_obtenida,acierto_revision,es_json_valido,tiempo_total_s,load_duration_s,carga_modelo_s,tokens_entrada,prefill_tok_s,tokens_salida,gen_tok_s,motivo
+"TC-01","falcon3:7b","TI","TI","TI","SI","false","false","SI","SI","52.52","0","12.69","402","9.43","54","5.46","Acceso rechazado al sistema corporativo"
+"TC-02","falcon3:7b","Finanzas","Finanzas","Finanzas","SI","false","false","SI","SI","19.17","0","12.69","404","46.74","57","5.42","Consulta sobre estado de factura F-2026-104"
+"TC-03","falcon3:7b","Recursos Humanos","RRHH","RRHH","NO","false","false","SI","SI","17.74","0","12.69","401","48.59","52","5.48","Solicitud de vacaciones"
+"TC-04","falcon3:7b","Revisión manual","Revisión manual","Revisión manual","SI","true","true","SI","SI","17.43","0","12.69","383","57.36","57","5.3","Inconveniente urgente, acceso o sistema"
+"TC-05","falcon3:7b","TI","Revisión manual","Revisión manual","NO","false","true","NO","SI","21.49","0","12.69","413","43.94","66","5.46","Problema de contraseña, acceso a cuenta corporativa"
+"TC-01","qwen2.5:7b","TI","TI","TI","SI","false","false","SI","SI","45.49","0","14.51","396","10.68","45","5.35","Problema de acceso al sistema corporativo"
+"TC-02","qwen2.5:7b","Finanzas","Facturación","Facturación","NO","false","false","SI","SI","17.55","0","14.51","396","46.95","49","5.38","Consulta sobre estado y fecha de pago de factura"
+"TC-03","qwen2.5:7b","Recursos Humanos","Revisión manual","Revisión manual","NO","false","true","NO","SI","17.62","0","14.51","394","48.54","51","5.37","Solicitud de vacaciones - procedimiento y disponibilidad"
+"TC-04","qwen2.5:7b","Revisión manual","TI","TI","NO","true","false","NO","SI","14.47","0","14.51","374","55.58","42","5.43","Inconveniente urgente"
+"TC-05","qwen2.5:7b","TI","TI","TI","SI","false","N/A","NO","SI","17.95","0","14.51","403","43.94","47","5.36","Solicitud de soporte y recuperación de acceso"
