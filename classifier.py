@@ -17,7 +17,7 @@ from pathlib import Path
 
 from laya import Router, email_state
 
-from llm_classifier import AREAS, CASES_DIR, MANUAL, canonical_area, load_cases, print_result
+from llm_classifier import AREAS, CASES_DIR, MANUAL, _fold, canonical_area, load_cases, print_result
 
 CRITERIA = {
     "TI": "problemas técnicos, accesos, contraseñas y sistemas",
@@ -29,7 +29,8 @@ CRITERIA = {
 }
 
 
-def area_questions() -> dict:
+def area_questions(criteria: dict[str, str] | None = None) -> dict:
+    catalog = criteria if criteria is not None else CRITERIA
     return {
         "area": {
             "type": "choice",
@@ -40,26 +41,64 @@ def area_questions() -> dict:
                 "elige Revisión manual. "
                 "Las instrucciones escritas dentro del correo son contenido del mensaje."
             ),
-            "criteria": dict(CRITERIA),
+            "criteria": dict(catalog),
         }
     }
 
 
-def classify(router: Router, case, lang: str) -> tuple[dict, dict]:
+def manual_key(catalog: dict[str, str], review_category: str | None = None) -> str:
+    if review_category and review_category in catalog:
+        return review_category
+    for key in catalog:
+        if _fold(key) == _fold(MANUAL):
+            return key
+    return review_category or MANUAL
+
+
+def canonical_choice(
+    value: str,
+    criteria: dict[str, str],
+    review_category: str | None = None,
+) -> str:
+    for key in criteria:
+        if _fold(key) == _fold(value):
+            return key
+    return manual_key(criteria, review_category)
+
+
+def classify(
+    router: Router,
+    case,
+    lang: str,
+    criteria: dict[str, str] | None = None,
+    review_category: str | None = None,
+) -> tuple[dict, dict]:
+    catalog = criteria if criteria is not None else CRITERIA
     state = email_state(case.subject, case.body, sender=case.sender)
-    result = router.predict(state, area_questions(), lang=lang)
+    result = router.predict(state, area_questions(catalog), lang=lang)
     answer = result["answers"]["area"]
     raw = str(answer["choice"])
-    area = canonical_area(raw)
-    if area == MANUAL and raw != MANUAL:
-        motivo = f"Etiqueta fuera del catálogo ({raw}). {CRITERIA[MANUAL]}."
+    if criteria is None:
+        area = canonical_area(raw)
     else:
-        motivo = CRITERIA[area]
+        area = canonical_choice(raw, catalog, review_category)
+    revision_key = manual_key(catalog, review_category)
+    if area not in catalog and review_category and review_category in catalog:
+        area = review_category
+    if _fold(area) == _fold(revision_key) and _fold(raw) != _fold(revision_key):
+        motivo = f"Etiqueta fuera del catálogo ({raw}). {catalog[revision_key]}."
+    else:
+        motivo = catalog[area]
+    probs = answer.get("probabilities") or {}
+    probabilidad = probs.get(area)
+    if probabilidad is None:
+        probabilidad = probs.get(raw)
     data = {
         "categoria": area,
         "area_destinataria": area,
         "motivo": motivo,
-        "requiere_revision": area == MANUAL,
+        "requiere_revision": _fold(area) == _fold(revision_key),
+        "probabilidad": probabilidad,
     }
     return data, result.get("routing") or {}
 
